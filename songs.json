@@ -48,5 +48,15 @@
         "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/chenhunxian.mp3"
       }
     ]
+  },
+  {
+    "songName": "等不及花开",
+    "segments": [
+      {
+        "time": "主歌",
+        "lyric": "爱就像风筝短线飘走的无奈",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/dengbujihuakai.mp3"
+      }
+    ]
   }
 ]
