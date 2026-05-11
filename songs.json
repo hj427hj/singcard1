@@ -35,27 +35,7 @@
       {
         "time": "主歌",
         "lyric": "祈求星星可听见",
-        "file": "https://singcard-1431583798.cos.ap-beijing.myqcloud.com/yangtai.mp3"
-      }
-    ]
-  },
-  {
-    "songName": "晨昏线",
-    "segments": [
-      {
-        "time": "1分14秒-1分28秒",
-        "lyric": "我真实的活着",
-        "file": "https://singcard-1431583798.cos.ap-beijing.myqcloud.com/chenhunxian.mp3"
-      }
-    ]
-  },
-  {
-    "songName": "等不及花开",
-    "segments": [
-      {
-        "time": "主歌",
-        "lyric": "爱就像风筝断线飘走的无奈",
-        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/dengbujihuakai.mp3"
+        "file": "https://singcard-1431583798.cos.ap-beijing.myqcloud.com/yangtai.mp3.mp3"
       }
     ]
   }
