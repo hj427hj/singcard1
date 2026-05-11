@@ -1,0 +1,32 @@
+[
+  {
+    "songName": "逃避没有不好",
+    "segments": [
+      {
+        "time": "25-31",
+        "lyric": "哪段角落能疗伤",
+        "file": "taobimeiyoubuhao.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "who you are",
+    "segments": [
+      {
+        "time": "1分12-1分32",
+        "lyric": "暂无：我打不出韩文",
+        "file": "WhoAreYou.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "说好了幸福呢",
+    "segments": [
+      {
+        "time": "22秒-38秒",
+        "lyric": "你的对话凌乱着",
+        "file": "shuohaolexingfune.mp3"
+      }
+    ]
+  }
+]

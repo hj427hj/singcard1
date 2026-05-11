@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>音乐杀 · 唱卡库</title>
+    <style>
+        :root { --bg: #0f0f0f; --card: #1a1a1a; --text: #eee; --sub: #aaa; --green: #1DB954; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, "Segoe UI", "PingFang SC", Roboto, sans-serif;
+            background: var(--bg); color: var(--text);
+            max-width: 800px; margin: auto; padding: 20px 16px 60px;
+        }
+        h1 { text-align: center; font-size: 2em; margin: 20px 0; color: var(--green); }
+        .search-box {
+            width: 100%; padding: 14px 18px; font-size: 1.1em;
+            border-radius: 30px; border: none; background: #1c1c1c; color: #fff;
+            margin-bottom: 20px; outline: none;
+        }
+        .status { text-align: center; color: #888; margin: 10px 0; font-size: 0.9rem; }
+        .results-count { font-size: 0.85rem; color: #888; margin-bottom: 10px; }
+        .song-group {
+            background: var(--card); border-radius: 16px; padding: 18px 16px;
+            margin-bottom: 14px; border-left: 5px solid var(--green);
+        }
+        .song-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 12px; }
+        .segment-item {
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            background: #222; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .segment-left { flex: 1; min-width: 160px; }
+        .segment-time { font-weight: 700; color: var(--green); font-size: 0.95rem; }
+        .segment-lyric { color: var(--sub); font-size: 0.88rem; margin-top: 3px; line-height: 1.4; }
+        .play-btn {
+            background: var(--green); border: none; color: #000; font-weight: 700;
+            padding: 10px 20px; border-radius: 30px; font-size: 0.9rem; cursor: pointer;
+        }
+        .play-btn:active { opacity: 0.8; }
+        .now-playing {
+            display: flex; align-items: center; gap: 10px;
+            margin-top: 8px; flex-basis: 100%;
+        }
+        .now-playing audio { flex: 1; min-width: 0; height: 36px; border-radius: 20px; background: #111; }
+        .stop-btn {
+            background: #444; border: none; color: #fff; font-weight: 700;
+            padding: 8px 16px; border-radius: 20px; cursor: pointer;
+        }
+        .empty { text-align: center; color: #666; margin-top: 40px; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+    <h1>🎤 音乐杀 · 唱卡库</h1>
+    <input type="text" class="search-box" id="searchInput" placeholder="输入歌曲名，如：后来" autocomplete="off" autofocus>
+    <div class="status" id="statusMsg">🎵 歌曲库加载中...</div>
+    <div class="results-count" id="resultsCount"></div>
+    <div id="resultsContainer"></div>
+
+    <script>
+        (function() {
+            let songLibrary = [];
+            let loading = true;
+
+            // 从同目录下的 songs.json 加载歌曲库
+            async function loadSongs() {
+                try {
+                    const response = await fetch('songs.json');
+                    if (!response.ok) throw new Error('加载失败');
+                    const data = await response.json();
+                    songLibrary = Array.isArray(data) ? data : [];
+                    document.getElementById('statusMsg').style.display = 'none';
+                } catch (err) {
+                    console.error('加载歌曲库出错:', err);
+                    songLibrary = [];
+                    document.getElementById('statusMsg').textContent = '⚠️ 歌曲数据加载失败，请刷新重试';
+                } finally {
+                    loading = false;
+                    renderResults(searchInput.value);
+                }
+            }
+
+            const searchInput = document.getElementById('searchInput');
+            const resultsCount = document.getElementById('resultsCount');
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            function renderResults(searchTerm = '') {
+                if (loading) return;
+                const term = searchTerm.trim().toLowerCase();
+                let filtered = term === '' ?
+                    songLibrary :
+                    songLibrary.filter(s => s.songName.toLowerCase().includes(term));
+
+                if (filtered.length === 0) {
+                    resultsCount.textContent = '';
+                    resultsContainer.innerHTML = '<div class="empty">😕 没找到，换个关键词试试</div>';
+                    return;
+                }
+                const totalSegments = filtered.reduce((acc, s) => acc + (s.segments ? s.segments.length : 0), 0);
+                resultsCount.textContent = `找到 ${filtered.length} 首歌，共 ${totalSegments} 个片段`;
+
+                let html = '';
+                filtered.forEach((song, songIdx) => {
+                    html += `<div class="song-group">
+                        <div class="song-title">🎵 ${escapeHtml(song.songName)}</div>`;
+                    if (song.segments && song.segments.length > 0) {
+                        song.segments.forEach((seg, segIdx) => {
+                            const uniqueId = `player_${songIdx}_${segIdx}`;
+                            html += `
+                            <div class="segment-item" id="seg_${uniqueId}">
+                                <div class="segment-left">
+                                    <div class="segment-time">⏱ ${escapeHtml(seg.time)}</div>
+                                    <div class="segment-lyric">📝 ${escapeHtml(seg.lyric)}</div>
+                                </div>
+                                <button class="play-btn" data-id="${uniqueId}" data-file="${escapeHtml(seg.file)}">▶ 播放</button>
+                            </div>`;
+                        });
+                    }
+                    html += `</div>`;
+                });
+                resultsContainer.innerHTML = html;
+
+                // 绑定播放事件
+                document.querySelectorAll('.play-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const uniqueId = this.dataset.id;
+                        const file = this.dataset.file;
+                        const segmentDiv = document.getElementById('seg_' + uniqueId);
+                        const existingPlayer = segmentDiv.querySelector('.now-playing');
+                        if (existingPlayer) {
+                            existingPlayer.remove();
+                            this.textContent = '▶ 播放';
+                            return;
+                        }
+                        document.querySelectorAll('.now-playing').forEach(p => p.remove());
+                        document.querySelectorAll('.play-btn').forEach(b => b.textContent = '▶ 播放');
+
+                        const playerDiv = document.createElement('div');
+                        playerDiv.className = 'now-playing';
+                        const audio = document.createElement('audio');
+                        audio.controls = true;
+                        audio.autoplay = true;
+                        audio.src = file;
+                        const stopBtn = document.createElement('button');
+                        stopBtn.className = 'stop-btn';
+                        stopBtn.textContent = '✕ 关闭';
+                        stopBtn.addEventListener('click', () => {
+                            playerDiv.remove();
+                            btn.textContent = '▶ 播放';
+                        });
+                        audio.addEventListener('ended', () => {
+                            playerDiv.remove();
+                            btn.textContent = '▶ 播放';
+                        });
+                        playerDiv.appendChild(audio);
+                        playerDiv.appendChild(stopBtn);
+                        segmentDiv.appendChild(playerDiv);
+                        this.textContent = '⏸ 播放中';
+                    });
+                });
+            }
+
+            searchInput.addEventListener('input', e => renderResults(e.target.value));
+            loadSongs();
+        })();
+    </script>
+</body>
+</html>
