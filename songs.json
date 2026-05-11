@@ -3,9 +3,9 @@
     "songName": "逃避没有不好",
     "segments": [
       {
-        "time": "25-31",
+        "time": "0:25-0:31",
         "lyric": "哪段角落能疗伤",
-        "file": "https://singcard-1431583798.cos.ap-beijing.myqcloud.com/taobimeiyoubuhao.mp3"
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/taobimeiyoubuhao.mp3"
       }
     ]
   },
@@ -13,9 +13,9 @@
     "songName": "who you are",
     "segments": [
       {
-        "time": "1分12-1分32",
-        "lyric": "暂无：我打不出韩文",
-        "file": "https://singcard-1431583798.cos.ap-beijing.myqcloud.com/WhoAreYou.mp3"
+        "time": "1:12-1:32",
+        "lyric": "（韩文歌词,不支持）",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/whoyouare.mp3"
       }
     ]
   },
@@ -23,9 +23,9 @@
     "songName": "说好了幸福呢",
     "segments": [
       {
-        "time": "22秒-38秒",
+        "time": "0:22-0:38",
         "lyric": "你的对话凌乱着",
-        "file": "https://singcard-1431583798.cos.ap-beijing.myqcloud.com/shuohaolexingfune.mp3"
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/shuohaolexingfune.mp3"
       }
     ]
   },
@@ -33,9 +33,20 @@
     "songName": "阳台",
     "segments": [
       {
-        "time": "主歌",
+        "time": "（主歌）",
         "lyric": "祈求星星可听见",
-        "file": "https://singcard-1431583798.cos.ap-beijing.myqcloud.com/yangtai.mp3.mp3"
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/yangtai.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "晨昏线",
+    "segments": [
+      {
+        "time": "1:14-1:28",
+        "lyric": "我真实的活着",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/chenhunxian.mp3"
       }
     ]
   }
+]
