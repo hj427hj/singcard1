@@ -65,7 +65,7 @@
             // 从同目录下的 songs.json 加载歌曲库
             async function loadSongs() {
                 try {
-                    const response = await fetch('https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/songs.json');
+                    const response = await fetch('songs.json');
                     if (!response.ok) throw new Error('加载失败');
                     const data = await response.json();
                     songLibrary = Array.isArray(data) ? data : [];
