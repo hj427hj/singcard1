@@ -50,3 +50,15 @@
     ]
   }
 ]
+[
+  {
+    "songName": "等不及花开",
+    "segments": [
+      {
+        "time": "主歌",
+        "lyric": "我真实的活着",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/dengbujihuakai.mp3"
+      }
+    ]
+  }
+]
