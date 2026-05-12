@@ -743,8 +743,8 @@
     "songName": "Familia",
     "segments": [
       {
-        "time": "",
-        "lyric": "",
+        "time": "27秒",
+        "lyric": "当你面对人生低潮漫无目的",
         "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/familia.mp3"
       }
     ]
@@ -753,28 +753,28 @@
     "songName": "Superman",
     "segments": [
       {
-        "time": "",
-        "lyric": "",
+        "time": "1分05秒",
+        "lyric": "比赛靠的是实力 不是运气",
         "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/superman.mp3"
       }
     ]
   },
   {
-    "songName": "二十世纪少年",
+    "songName": "二十世纪少年（主歌）",
     "segments": [
       {
         "time": "",
-        "lyric": "",
+        "lyric": "如果 明天 前陨石降临",
         "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/ershishijishaonian.mp3"
       }
     ]
   },
   {
-    "songName": "多完美的一天",
+    "songName": "多完美的一天（主歌）",
     "segments": [
       {
         "time": "",
-        "lyric": "",
+        "lyric": "啊 休闲的生活 昨夜的美梦",
         "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/duowanmeideyitian.mp3"
       }
     ]
