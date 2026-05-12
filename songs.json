@@ -674,7 +674,7 @@
     "segments": [
       {
         "time": "副歌",
-        "lyric": "你呀你 冻我新房",
+        "lyric": "就这般望着你",
         "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/gean.mp3"
       }
     ]
@@ -696,6 +696,46 @@
         "time": "副歌",
         "lyric": "翻江倒海 世界由我主宰",
         "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/qitiandasheng.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "冀西南林路行",
+    "segments": [
+      {
+        "time": "主歌",
+        "lyric": "开采我的血肉的火光",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/jixinanlinluxing.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "再也没有瓜版",
+    "segments": [
+      {
+        "time": "",
+        "lyric": "我再也没有对你生气",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/zaiyemeiyouguaban.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "对（主歌）",
+    "segments": [
+      {
+        "time": "主歌",
+        "lyric": "对 对 说得对",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/dui1.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "隔岸（主歌）",
+    "segments": [
+      {
+        "time": "主歌",
+        "lyric": "那一幕怎忘记",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/gean1.mp3"
       }
     ]
   }
