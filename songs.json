@@ -738,5 +738,115 @@
         "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/gean1.mp3"
       }
     ]
+  },
+  {
+    "songName": "Familia",
+    "segments": [
+      {
+        "time": "",
+        "lyric": "",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/familia.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "Superman",
+    "segments": [
+      {
+        "time": "",
+        "lyric": "",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/superman.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "二十世纪少年",
+    "segments": [
+      {
+        "time": "",
+        "lyric": "",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/ershishijishaonian.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "多完美的一天",
+    "segments": [
+      {
+        "time": "",
+        "lyric": "",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/duowanmeideyitian.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "尘埃（主歌）",
+    "segments": [
+      {
+        "time": "主歌",
+        "lyric": "星星一直都在",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/chenaizhuge.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "平日快乐（主歌）",
+    "segments": [
+      {
+        "time": "主歌",
+        "lyric": "清早卸下睡意前往每天的坐等",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/pingrikuailezhuge.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "底牌",
+    "segments": [
+      {
+        "time": "0分34秒",
+        "lyric": "baby i aint liar 放下防备你和我",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/dipai.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "明明（主歌）",
+    "segments": [
+      {
+        "time": "主歌",
+        "lyric": "旧唱片 完全尘封不已",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/mingmingzhuge.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "让我拥抱所有的悲伤（主歌）",
+    "segments": [
+      {
+        "time": "主歌",
+        "lyric": "像一阵风 像一阵雨",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/rangwoyongbaosuoyoudebeishangzhuge.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "逃（主歌）",
+    "segments": [
+      {
+        "time": "主歌",
+        "lyric": "为谁拼命着拼命追逐着",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/taozhuge.mp3"
+      }
+    ]
+  },
+  {
+    "songName": "新郎（主歌）",
+    "segments": [
+      {
+        "time": "主歌",
+        "lyric": "沿着发梢 拂过眉心",
+        "file": "https://singcard-1431583798.cos-website.ap-beijing.myqcloud.com/xinlangzhuge.mp3"
+      }
+    ]
   }
 ]
