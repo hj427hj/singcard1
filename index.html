@@ -62,22 +62,92 @@
             let songLibrary = [];
             let loading = true;
 
-            // 从同目录下的 songs.json 加载歌曲库
+            // 从同目录下的 songs.csv 加载
             async function loadSongs() {
                 try {
-                    const response = await fetch('songs.json');
-                    if (!response.ok) throw new Error('加载失败');
-                    const data = await response.json();
-                    songLibrary = Array.isArray(data) ? data : [];
+                    const res = await fetch('songs.csv');
+                    if (!res.ok) throw new Error('加载失败');
+                    const text = await res.text();
+                    songLibrary = parseCSV(text);
                     document.getElementById('statusMsg').style.display = 'none';
-                } catch (err) {
-                    console.error('加载歌曲库出错:', err);
+                } catch (e) {
+                    console.error(e);
                     songLibrary = [];
-                    document.getElementById('statusMsg').textContent = '⚠️ 歌曲数据加载失败，请刷新重试';
+                    document.getElementById('statusMsg').textContent = '⚠️ 歌曲数据加载失败，请检查 songs.csv';
                 } finally {
                     loading = false;
                     renderResults(searchInput.value);
                 }
+            }
+
+            // 简易CSV解析器，支持双引号转义、逗号分隔
+            function parseCSV(csvText) {
+                const rows = [];
+                let currentRow = [];
+                let currentField = '';
+                let inQuotes = false;
+
+                for (let i = 0; i < csvText.length; i++) {
+                    const ch = csvText[i];
+                    if (inQuotes) {
+                        if (ch === '"') {
+                            if (i + 1 < csvText.length && csvText[i + 1] === '"') {
+                                currentField += '"';
+                                i++;
+                            } else {
+                                inQuotes = false;
+                            }
+                        } else {
+                            currentField += ch;
+                        }
+                    } else {
+                        if (ch === '"') {
+                            inQuotes = true;
+                        } else if (ch === ',') {
+                            currentRow.push(currentField.trim());
+                            currentField = '';
+                        } else if (ch === '\n') {
+                            currentRow.push(currentField.trim());
+                            if (currentRow.length > 0) {
+                                rows.push(currentRow);
+                            }
+                            currentRow = [];
+                            currentField = '';
+                        } else if (ch !== '\r') {
+                            currentField += ch;
+                        }
+                    }
+                }
+                // 处理最后一行
+                if (currentField) {
+                    currentRow.push(currentField.trim());
+                }
+                if (currentRow.length > 0) {
+                    rows.push(currentRow);
+                }
+
+                if (rows.length < 2) return [];
+
+                const headers = rows[0].map(h => h.toLowerCase().trim());
+                const songsMap = {};
+
+                for (let i = 1; i < rows.length; i++) {
+                    const cols = rows[i];
+                    if (cols.length < 4) continue;
+                    const songName = cols[0];
+                    const time = cols[1];
+                    const lyric = cols[2];
+                    const file = cols[3];
+                    if (!songName || !file) continue;
+
+                    if (!songsMap[songName]) songsMap[songName] = [];
+                    songsMap[songName].push({ time, lyric, file });
+                }
+
+                return Object.keys(songsMap).map(name => ({
+                    songName: name,
+                    segments: songsMap[name]
+                }));
             }
 
             const searchInput = document.getElementById('searchInput');
@@ -86,7 +156,7 @@
 
             function escapeHtml(str) {
                 const div = document.createElement('div');
-                div.textContent = str;
+                div.textContent = typeof str === 'string' ? str : '';
                 return div.innerHTML;
             }
 
