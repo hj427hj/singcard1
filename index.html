@@ -65,11 +65,10 @@
             // 从同目录下的 songs.csv 加载
             async function loadSongs() {
                 try {
-                   fetch('songs.csv?v=' + Date.now())
-if (!res.ok) throw new Error('加载失败');
-const buffer = await res.arrayBuffer();
-const text = new TextDecoder('utf-8').decode(buffer);
-const text = new TextDecoder('utf-8').decode(buffer);
+                    const res = await fetch('songs.csv?v=' + Date.now());
+                    if (!res.ok) throw new Error('加载失败');
+                    const buffer = await res.arrayBuffer();
+                    const text = new TextDecoder('utf-8').decode(buffer);
                     songLibrary = parseCSV(text);
                     document.getElementById('statusMsg').style.display = 'none';
                 } catch (e) {
@@ -82,7 +81,6 @@ const text = new TextDecoder('utf-8').decode(buffer);
                 }
             }
 
-            // 简易CSV解析器，支持双引号转义、逗号分隔
             function parseCSV(csvText) {
                 const rows = [];
                 let currentRow = [];
@@ -120,7 +118,6 @@ const text = new TextDecoder('utf-8').decode(buffer);
                         }
                     }
                 }
-                // 处理最后一行
                 if (currentField) {
                     currentRow.push(currentField.trim());
                 }
@@ -130,7 +127,6 @@ const text = new TextDecoder('utf-8').decode(buffer);
 
                 if (rows.length < 2) return [];
 
-                const headers = rows[0].map(h => h.toLowerCase().trim());
                 const songsMap = {};
 
                 for (let i = 1; i < rows.length; i++) {
@@ -198,7 +194,6 @@ const text = new TextDecoder('utf-8').decode(buffer);
                 });
                 resultsContainer.innerHTML = html;
 
-                // 绑定播放事件
                 document.querySelectorAll('.play-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const uniqueId = this.dataset.id;
