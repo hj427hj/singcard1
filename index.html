@@ -67,7 +67,8 @@
                 try {
                     const res = await fetch('songs.csv');
                     if (!res.ok) throw new Error('加载失败');
-                    const text = await res.text();
+                    const buffer = await res.arrayBuffer();
+const text = new TextDecoder('utf-8').decode(buffer);
                     songLibrary = parseCSV(text);
                     document.getElementById('statusMsg').style.display = 'none';
                 } catch (e) {
