@@ -10,16 +10,46 @@
         body {
             font-family: -apple-system, "Segoe UI", "PingFang SC", Roboto, sans-serif;
             background: var(--bg); color: var(--text);
-            max-width: 800px; margin: auto; padding: 20px 16px 60px;
+            max-width: 100vw; margin: auto; padding: 20px 16px 60px;
+            display: flex; flex-direction: column; align-items: center;
         }
         h1 { text-align: center; font-size: 2em; margin: 20px 0; color: var(--green); }
         .search-box {
-            width: 100%; padding: 14px 18px; font-size: 1.1em;
+            width: 100%; max-width: 800px; padding: 14px 18px; font-size: 1.1em;
             border-radius: 30px; border: none; background: #1c1c1c; color: #fff;
             margin-bottom: 20px; outline: none;
         }
         .status { text-align: center; color: #888; margin: 10px 0; font-size: 0.9rem; }
-        .results-count { font-size: 0.85rem; color: #888; margin-bottom: 10px; }
+        .results-count { font-size: 0.85rem; color: #888; margin-bottom: 10px; text-align: center; }
+        .main-layout {
+            display: flex; gap: 15px; width: 100%; max-width: 900px;
+            position: relative;
+        }
+        /* 字母索引 */
+        .alpha-index {
+            position: fixed; left: 8px; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 2px;
+            z-index: 100; background: rgba(10,10,10,0.9);
+            padding: 6px 4px; border-radius: 12px;
+            border: 1px solid #333;
+        }
+        .alpha-index a {
+            color: var(--sub); text-decoration: none; font-size: 0.75rem;
+            font-weight: 700; text-align: center; padding: 3px 6px;
+            border-radius: 6px; transition: 0.2s;
+            min-width: 24px; display: block;
+        }
+        .alpha-index a:hover, .alpha-index a.active { color: var(--green); background: #1a1a1a; }
+        /* 歌曲列表 */
+        .song-list {
+            flex: 1; max-width: 800px; margin-left: 45px;
+        }
+        .letter-group { margin-bottom: 25px; }
+        .letter-header {
+            color: var(--green); font-size: 1.5em; font-weight: 800;
+            padding: 8px 0; border-bottom: 2px solid var(--green);
+            margin-bottom: 12px; text-transform: uppercase;
+        }
         .song-group {
             background: var(--card); border-radius: 16px; padding: 18px 16px;
             margin-bottom: 14px; border-left: 5px solid var(--green);
@@ -31,19 +61,11 @@
             display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
         }
         .segment-left { flex: 1; min-width: 180px; }
-        .segment-time {
-            font-weight: 700; color: var(--green); font-size: 0.95rem;
-            margin-bottom: 4px;
-        }
-        .segment-lyric {
-            color: var(--sub); font-size: 0.95rem;
-            line-height: 1.5; white-space: pre-wrap;
-            word-break: break-word;
-        }
+        .segment-time { font-weight: 700; color: var(--green); font-size: 0.95rem; margin-bottom: 4px; }
+        .segment-lyric { color: var(--sub); font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
         .play-btn {
             background: var(--green); border: none; color: #000; font-weight: 700;
-            padding: 10px 20px; border-radius: 30px; font-size: 0.9rem; cursor: pointer;
-            white-space: nowrap;
+            padding: 10px 20px; border-radius: 30px; font-size: 0.9rem; cursor: pointer; white-space: nowrap;
         }
         .play-btn:active { opacity: 0.8; }
         .now-playing {
@@ -56,6 +78,12 @@
             padding: 8px 16px; border-radius: 20px; cursor: pointer;
         }
         .empty { text-align: center; color: #666; margin-top: 40px; font-size: 1.1rem; }
+
+        @media (max-width: 600px) {
+            .alpha-index { left: 2px; padding: 4px 2px; }
+            .alpha-index a { font-size: 0.7rem; padding: 2px 4px; min-width: 20px; }
+            .song-list { margin-left: 32px; }
+        }
     </style>
 </head>
 <body>
@@ -63,12 +91,20 @@
     <input type="text" class="search-box" id="searchInput" placeholder="输入歌曲名，如：期待你的爱" autocomplete="off" autofocus>
     <div class="status" id="statusMsg">🎵 歌曲库加载中...</div>
     <div class="results-count" id="resultsCount"></div>
-    <div id="resultsContainer"></div>
+
+    <div class="main-layout">
+        <!-- 字母索引 -->
+        <div class="alpha-index" id="alphaIndex"></div>
+
+        <!-- 歌曲列表 -->
+        <div class="song-list" id="songListContainer"></div>
+    </div>
 
     <script>
         (function() {
             let songLibrary = [];
             let loading = true;
+            let groupedSongs = {}; // { 'A': [song, song...], 'B': [...] }
 
             // 从同目录下的 songs.csv 加载
             async function loadSongs() {
@@ -78,8 +114,12 @@
                     const buffer = await res.arrayBuffer();
                     const text = new TextDecoder('utf-8').decode(buffer);
                     songLibrary = parseCSV(text);
-                    // 按歌曲名的拼音首字母排序
+                    // 按拼音排序
                     songLibrary.sort((a, b) => a.songName.localeCompare(b.songName, 'zh'));
+                    // 分组
+                    groupSongs();
+                    // 生成字母索引
+                    buildAlphaIndex();
                     document.getElementById('statusMsg').style.display = 'none';
                 } catch (e) {
                     console.error(e);
@@ -130,7 +170,6 @@
                 if (currentRow.length > 0) rows.push(currentRow);
 
                 if (rows.length < 2) return [];
-                // 跳过表头
                 const songsMap = {};
                 for (let i = 1; i < rows.length; i++) {
                     const cols = rows[i];
@@ -144,16 +183,88 @@
                     if (!songsMap[songName]) songsMap[songName] = [];
                     songsMap[songName].push({ time, lyric, file });
                 }
-
                 return Object.keys(songsMap).map(name => ({
                     songName: name,
                     segments: songsMap[name]
                 }));
             }
 
+            // 按首字母分组
+            function getFirstLetter(name) {
+                if (!name) return '#';
+                const ch = name.charAt(0);
+                if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase();
+                if (/[\u4e00-\u9fff]/.test(ch)) {
+                    // 用拼音首字母
+                    const py = name.localeCompare(name, 'zh', { sensitivity: 'base' });
+                    // 简单方案：使用 localeCompare 的排序结果模拟拼音首字母
+                    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                    for (let l of letters) {
+                        if (name.localeCompare(l, 'zh') >= 0 && name.localeCompare(String.fromCharCode(l.charCodeAt(0)+1), 'zh') < 0) {
+                            return l;
+                        }
+                    }
+                    return name.charAt(0).toUpperCase();
+                }
+                return name.charAt(0).toUpperCase();
+            }
+
+            // 使用更稳健的拼音首字母分组（基于 localeCompare 比较）
+            function groupSongs() {
+                groupedSongs = {};
+                const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+                letters.forEach(l => groupedSongs[l] = []);
+                groupedSongs['#'] = [];
+
+                songLibrary.forEach(song => {
+                    const name = song.songName;
+                    let placed = false;
+                    for (let l of letters) {
+                        const nextL = String.fromCharCode(l.charCodeAt(0) + 1);
+                        if (name.localeCompare(l, 'zh') >= 0 && name.localeCompare(nextL, 'zh') < 0) {
+                            groupedSongs[l].push(song);
+                            placed = true;
+                            break;
+                        }
+                    }
+                    if (!placed) groupedSongs['#'].push(song);
+                });
+
+                // 清理空组
+                Object.keys(groupedSongs).forEach(key => {
+                    if (groupedSongs[key].length === 0) delete groupedSongs[key];
+                });
+            }
+
+            // 构建字母索引
+            function buildAlphaIndex() {
+                const indexDiv = document.getElementById('alphaIndex');
+                const availableLetters = Object.keys(groupedSongs).sort((a,b) => {
+                    if (a === '#') return 1;
+                    if (b === '#') return -1;
+                    return a.localeCompare(b);
+                });
+                let html = '';
+                availableLetters.forEach(l => {
+                    html += `<a href="#letter-${l}" onclick="scrollToLetter('${l}')" title="跳转到 ${l}">${l}</a>`;
+                });
+                indexDiv.innerHTML = html;
+            }
+
+            window.scrollToLetter = function(letter) {
+                const el = document.getElementById('letter-' + letter);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                // 高亮当前选中的字母
+                document.querySelectorAll('.alpha-index a').forEach(a => a.classList.remove('active'));
+                const activeLink = document.querySelector(`.alpha-index a[href="#letter-${letter}"]`);
+                if (activeLink) activeLink.classList.add('active');
+            };
+
             const searchInput = document.getElementById('searchInput');
             const resultsCount = document.getElementById('resultsCount');
-            const resultsContainer = document.getElementById('resultsContainer');
+            const songListContainer = document.getElementById('songListContainer');
 
             function escapeHtml(str) {
                 const div = document.createElement('div');
@@ -164,45 +275,77 @@
             function renderResults(searchTerm = '') {
                 if (loading) return;
                 const term = searchTerm.trim().toLowerCase();
-                let filtered = term === '' ?
-                    songLibrary :
-                    songLibrary.filter(s => s.songName.toLowerCase().includes(term));
 
-                if (filtered.length === 0) {
-                    resultsCount.textContent = '';
-                    resultsContainer.innerHTML = '<div class="empty">😕 没找到，换个关键词试试</div>';
+                // 如果正在搜索，则扁平化显示所有匹配歌曲（不分组）
+                if (term) {
+                    let filtered = songLibrary.filter(s => s.songName.toLowerCase().includes(term));
+                    if (filtered.length === 0) {
+                        resultsCount.textContent = '';
+                        songListContainer.innerHTML = '<div class="empty">😕 没找到，换个关键词试试</div>';
+                        return;
+                    }
+                    resultsCount.textContent = `找到 ${filtered.length} 首歌`;
+                    let html = '';
+                    filtered.forEach((song, idx) => {
+                        html += buildSongCard(song, idx);
+                    });
+                    songListContainer.innerHTML = html;
+                    bindPlayButtons();
                     return;
                 }
-                const totalSegments = filtered.reduce((acc, s) => acc + (s.segments ? s.segments.length : 0), 0);
-                resultsCount.textContent = `找到 ${filtered.length} 首歌，共 ${totalSegments} 个片段`;
 
+                // 否则按分组显示
+                let totalCount = 0;
                 let html = '';
-                filtered.forEach((song, songIdx) => {
-                    html += `<div class="song-group">
-                        <div class="song-title">🎵 ${escapeHtml(song.songName)}</div>`;
-                    if (song.segments && song.segments.length > 0) {
-                        song.segments.forEach((seg, segIdx) => {
-                            const uniqueId = `player_${songIdx}_${segIdx}`;
-                            html += `
-                            <div class="segment-item" id="seg_${uniqueId}">
-                                <div class="segment-left">
-                                    <div class="segment-time">⏱ ${escapeHtml(seg.time)}</div>
-                                    <div class="segment-lyric">📝 ${escapeHtml(seg.lyric)}</div>
-                                </div>
-                                <button class="play-btn" data-id="${uniqueId}" data-file="${escapeHtml(seg.file)}">▶ 播放</button>
-                            </div>`;
-                        });
-                    }
-                    html += `</div>`;
+                const availableLetters = Object.keys(groupedSongs).sort((a,b) => {
+                    if (a === '#') return 1;
+                    if (b === '#') return -1;
+                    return a.localeCompare(b);
                 });
-                resultsContainer.innerHTML = html;
 
-                // 绑定播放事件
+                availableLetters.forEach(letter => {
+                    const songs = groupedSongs[letter];
+                    html += `<div class="letter-group" id="letter-${letter}">
+                        <div class="letter-header">${letter}</div>`;
+                    songs.forEach((song, idx) => {
+                        html += buildSongCard(song, idx);
+                        totalCount++;
+                    });
+                    html += '</div>';
+                });
+
+                resultsCount.textContent = `共 ${totalCount} 首歌`;
+                songListContainer.innerHTML = html;
+                bindPlayButtons();
+            }
+
+            function buildSongCard(song, idx) {
+                let html = `<div class="song-group">
+                    <div class="song-title">🎵 ${escapeHtml(song.songName)}</div>`;
+                if (song.segments && song.segments.length > 0) {
+                    song.segments.forEach((seg, segIdx) => {
+                        const uniqueId = `player_${idx}_${segIdx}`;
+                        html += `
+                        <div class="segment-item" id="seg_${uniqueId}">
+                            <div class="segment-left">
+                                <div class="segment-time">⏱ ${escapeHtml(seg.time)}</div>
+                                <div class="segment-lyric">📝 ${escapeHtml(seg.lyric)}</div>
+                            </div>
+                            <button class="play-btn" data-id="${uniqueId}" data-file="${escapeHtml(seg.file)}">▶ 播放</button>
+                        </div>`;
+                    });
+                }
+                html += '</div>';
+                return html;
+            }
+
+            function bindPlayButtons() {
                 document.querySelectorAll('.play-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const uniqueId = this.dataset.id;
                         const file = this.dataset.file;
                         const segmentDiv = document.getElementById('seg_' + uniqueId);
+                        if (!segmentDiv) return;
                         const existingPlayer = segmentDiv.querySelector('.now-playing');
                         if (existingPlayer) {
                             existingPlayer.remove();
