@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>音乐杀 · 唱卡库</title>
+    <!-- 引入拼音库，用于分组和排序 -->
+    <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js"></script>
     <style>
         :root { --bg: #0f0f0f; --card: #1a1a1a; --text: #eee; --sub: #bbb; --green: #1DB954; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -106,6 +108,21 @@
             let loading = true;
             let groupedSongs = {}; // { 'A': [song, song...], 'B': [...] }
 
+            // 获取拼音首字母（大写）
+            function getFirstPinyinLetter(name) {
+                if (!name) return '#';
+                // 检查是否包含中文
+                if (/[\u4e00-\u9fff]/.test(name)) {
+                    // 获取完整拼音，取第一个字符的首字母
+                    const py = window.pinyinPro.pinyin(name, { toneType: 'none', type: 'array' })[0];
+                    if (py) return py.charAt(0).toUpperCase();
+                }
+                // 非中文直接取首字母
+                const ch = name.trim().charAt(0).toUpperCase();
+                if (/[A-Z]/.test(ch)) return ch;
+                return '#';
+            }
+
             // 从同目录下的 songs.csv 加载
             async function loadSongs() {
                 try {
@@ -189,63 +206,31 @@
                 }));
             }
 
-            // 按首字母分组
-            function getFirstLetter(name) {
-                if (!name) return '#';
-                const ch = name.charAt(0);
-                if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase();
-                if (/[\u4e00-\u9fff]/.test(ch)) {
-                    // 用拼音首字母
-                    const py = name.localeCompare(name, 'zh', { sensitivity: 'base' });
-                    // 简单方案：使用 localeCompare 的排序结果模拟拼音首字母
-                    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                    for (let l of letters) {
-                        if (name.localeCompare(l, 'zh') >= 0 && name.localeCompare(String.fromCharCode(l.charCodeAt(0)+1), 'zh') < 0) {
-                            return l;
-                        }
-                    }
-                    return name.charAt(0).toUpperCase();
-                }
-                return name.charAt(0).toUpperCase();
-            }
-
-            // 使用更稳健的拼音首字母分组（基于 localeCompare 比较）
+            // 按拼音首字母分组
             function groupSongs() {
                 groupedSongs = {};
-                const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-                letters.forEach(l => groupedSongs[l] = []);
-                groupedSongs['#'] = [];
-
                 songLibrary.forEach(song => {
-                    const name = song.songName;
-                    let placed = false;
-                    for (let l of letters) {
-                        const nextL = String.fromCharCode(l.charCodeAt(0) + 1);
-                        if (name.localeCompare(l, 'zh') >= 0 && name.localeCompare(nextL, 'zh') < 0) {
-                            groupedSongs[l].push(song);
-                            placed = true;
-                            break;
-                        }
-                    }
-                    if (!placed) groupedSongs['#'].push(song);
+                    const letter = getFirstPinyinLetter(song.songName);
+                    if (!groupedSongs[letter]) groupedSongs[letter] = [];
+                    groupedSongs[letter].push(song);
                 });
-
-                // 清理空组
-                Object.keys(groupedSongs).forEach(key => {
-                    if (groupedSongs[key].length === 0) delete groupedSongs[key];
+                // 对组内再次排序（其实已经全排序了，但保留分组内顺序）
+                Object.keys(groupedSongs).forEach(l => {
+                    groupedSongs[l].sort((a, b) => a.songName.localeCompare(b.songName, 'zh'));
                 });
             }
 
             // 构建字母索引
             function buildAlphaIndex() {
                 const indexDiv = document.getElementById('alphaIndex');
-                const availableLetters = Object.keys(groupedSongs).sort((a,b) => {
+                // 按字母顺序排列，A-Z 然后是 #
+                const letters = Object.keys(groupedSongs).sort((a, b) => {
                     if (a === '#') return 1;
                     if (b === '#') return -1;
                     return a.localeCompare(b);
                 });
                 let html = '';
-                availableLetters.forEach(l => {
+                letters.forEach(l => {
                     html += `<a href="#letter-${l}" onclick="scrollToLetter('${l}')" title="跳转到 ${l}">${l}</a>`;
                 });
                 indexDiv.innerHTML = html;
@@ -276,7 +261,7 @@
                 if (loading) return;
                 const term = searchTerm.trim().toLowerCase();
 
-                // 如果正在搜索，则扁平化显示所有匹配歌曲（不分组）
+                // 搜索模式：扁平列表
                 if (term) {
                     let filtered = songLibrary.filter(s => s.songName.toLowerCase().includes(term));
                     if (filtered.length === 0) {
@@ -294,16 +279,16 @@
                     return;
                 }
 
-                // 否则按分组显示
+                // 分组视图
                 let totalCount = 0;
                 let html = '';
-                const availableLetters = Object.keys(groupedSongs).sort((a,b) => {
+                const letters = Object.keys(groupedSongs).sort((a, b) => {
                     if (a === '#') return 1;
                     if (b === '#') return -1;
                     return a.localeCompare(b);
                 });
 
-                availableLetters.forEach(letter => {
+                letters.forEach(letter => {
                     const songs = groupedSongs[letter];
                     html += `<div class="letter-group" id="letter-${letter}">
                         <div class="letter-header">${letter}</div>`;
