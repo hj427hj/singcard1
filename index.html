@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>音乐杀 · 唱卡库</title>
     <style>
-        :root { --bg: #0f0f0f; --card: #1a1a1a; --text: #eee; --sub: #aaa; --green: #1DB954; }
+        :root { --bg: #0f0f0f; --card: #1a1a1a; --text: #eee; --sub: #bbb; --green: #1DB954; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, "Segoe UI", "PingFang SC", Roboto, sans-serif;
@@ -24,18 +24,26 @@
             background: var(--card); border-radius: 16px; padding: 18px 16px;
             margin-bottom: 14px; border-left: 5px solid var(--green);
         }
-        .song-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 12px; }
+        .song-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 12px; color: var(--green); }
         .segment-item {
-            display: flex; align-items: center; justify-content: space-between; gap: 10px;
-            background: #222; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
-            flex-wrap: wrap;
+            background: #222; border-radius: 12px; padding: 12px 14px;
+            margin-bottom: 8px;
+            display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
         }
-        .segment-left { flex: 1; min-width: 160px; }
-        .segment-time { font-weight: 700; color: var(--green); font-size: 0.95rem; }
-        .segment-lyric { color: var(--sub); font-size: 0.88rem; margin-top: 3px; line-height: 1.4; }
+        .segment-left { flex: 1; min-width: 180px; }
+        .segment-time {
+            font-weight: 700; color: var(--green); font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+        .segment-lyric {
+            color: var(--sub); font-size: 0.95rem;
+            line-height: 1.5; white-space: pre-wrap;
+            word-break: break-word;
+        }
         .play-btn {
             background: var(--green); border: none; color: #000; font-weight: 700;
             padding: 10px 20px; border-radius: 30px; font-size: 0.9rem; cursor: pointer;
+            white-space: nowrap;
         }
         .play-btn:active { opacity: 0.8; }
         .now-playing {
@@ -52,7 +60,7 @@
 </head>
 <body>
     <h1>🎤 音乐杀 · 唱卡库</h1>
-    <input type="text" class="search-box" id="searchInput" placeholder="输入歌曲名，如：后来" autocomplete="off" autofocus>
+    <input type="text" class="search-box" id="searchInput" placeholder="输入歌曲名，如：期待你的爱" autocomplete="off" autofocus>
     <div class="status" id="statusMsg">🎵 歌曲库加载中...</div>
     <div class="results-count" id="resultsCount"></div>
     <div id="resultsContainer"></div>
@@ -70,6 +78,8 @@
                     const buffer = await res.arrayBuffer();
                     const text = new TextDecoder('utf-8').decode(buffer);
                     songLibrary = parseCSV(text);
+                    // 按歌曲名的拼音首字母排序
+                    songLibrary.sort((a, b) => a.songName.localeCompare(b.songName, 'zh'));
                     document.getElementById('statusMsg').style.display = 'none';
                 } catch (e) {
                     console.error(e);
@@ -108,9 +118,7 @@
                             currentField = '';
                         } else if (ch === '\n') {
                             currentRow.push(currentField.trim());
-                            if (currentRow.length > 0) {
-                                rows.push(currentRow);
-                            }
+                            if (currentRow.length > 0) rows.push(currentRow);
                             currentRow = [];
                             currentField = '';
                         } else if (ch !== '\r') {
@@ -118,17 +126,12 @@
                         }
                     }
                 }
-                if (currentField) {
-                    currentRow.push(currentField.trim());
-                }
-                if (currentRow.length > 0) {
-                    rows.push(currentRow);
-                }
+                if (currentField) currentRow.push(currentField.trim());
+                if (currentRow.length > 0) rows.push(currentRow);
 
                 if (rows.length < 2) return [];
-
+                // 跳过表头
                 const songsMap = {};
-
                 for (let i = 1; i < rows.length; i++) {
                     const cols = rows[i];
                     if (cols.length < 4) continue;
@@ -194,6 +197,7 @@
                 });
                 resultsContainer.innerHTML = html;
 
+                // 绑定播放事件
                 document.querySelectorAll('.play-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const uniqueId = this.dataset.id;
